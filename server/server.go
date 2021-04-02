@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
+	"goblock/packages/api"
 )
 
 func run() error {
@@ -38,7 +40,11 @@ func makeMuxRouter() http.Handler {
 }
 
 func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
-	bytes, err := json.MarshalIndent(Blockchain, "", "  ")
+	bc := api.Blockchain{
+		[]api.Block{},
+	}
+
+	bytes, err := json.MarshalIndent(bc, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

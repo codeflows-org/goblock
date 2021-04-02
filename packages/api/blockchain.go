@@ -8,8 +8,8 @@ import (
 )
 
 type Block struct {
-	Index        int
-	Timestamp    string
+	Index        int    // Index of the block.
+	Timestamp    string // The moment the block has been added to the chain.
 	Data         string
 	Hash         string
 	PreviousHash string
@@ -17,6 +17,19 @@ type Block struct {
 
 type Blockchain struct {
 	blocks []Block
+}
+
+func NewBlockchain() Blockchain {
+	genesis := Block{
+		Index:        0,
+		Timestamp:    "",
+		Data:         "",
+		Hash:         "",
+		PreviousHash: "0",
+	}
+	return Blockchain{
+		blocks: []Block{genesis},
+	}
 }
 
 func calculateHash(block Block) string {
