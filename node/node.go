@@ -1,11 +1,10 @@
-package server
+package node
 
 import (
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -13,12 +12,23 @@ import (
 	"goblock/packages/api"
 )
 
-func run() error {
+type Node struct {
+	// WIP
+	httpAddr string // The endpoint to listen for HTTP incoming traffic.
+}
+
+func NewNode(httpAddr string) *Node {
+	return &Node{
+		httpAddr: httpAddr,
+	}
+}
+
+func (n *Node) Run() error {
 	mux := makeMuxRouter()
-	httpAddr := os.Getenv("PORT")
-	log.Println("Listening on ", os.Getenv("PORT"))
+	log.Println("Listening on", n.httpAddr)
+
 	s := &http.Server{
-		Addr:           ":" + httpAddr,
+		Addr:           ":" + n.httpAddr,
 		Handler:        mux,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -35,19 +45,23 @@ func run() error {
 func makeMuxRouter() http.Handler {
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
-	muxRouter.HandleFunc("/", handleWriteBlock).Methods("POST")
+	muxRouter.HandleFunc("/txns", handleTxnSubmit).Methods("POST")
 	return muxRouter
 }
 
 func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
-	bc := api.Blockchain{
-		[]api.Block{},
-	}
+	// TODO: Use a blockchain store/repo.
+	// This is just for compilation only.
+	bc := api.NewBlockchain()
 
 	bytes, err := json.MarshalIndent(bc, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	io.WriteString(w, string(bytes))
+	_, _ = io.WriteString(w, string(bytes))
+}
+
+func handleTxnSubmit(w http.ResponseWriter, r *http.Request) {
+	// TODO
 }
